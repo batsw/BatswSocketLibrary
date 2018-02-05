@@ -1,10 +1,10 @@
 package com.batsw.socket.library.main;
 
-public class Main {
+public class MainTest {
 
 	public static void main(String[] args) {
 
-		System.out.println("Batsw Socket Library");
+		System.out.println("Batsw test Socket Library");
 		
 	}
 
