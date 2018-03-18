@@ -1,6 +1,7 @@
 package com.batsw.socket.library.connection;
 
 import java.io.IOException;
+
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -8,9 +9,14 @@ import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 
+import com.batsw.socket.library.service.IClient;
 import com.batsw.socket.library.service.IServer;
 import com.batsw.socket.library.service.payload.IEntity;
 
+/**
+ * @author tudor
+ *
+ */
 public class Server implements IServer {
 
 	private static final Logger LOGGER = Logger.getLogger(Server.class);
@@ -24,13 +30,12 @@ public class Server implements IServer {
 	private int mInternalProxyPort;
 	private boolean isStarted = false;
 
-	protected Server(int internalProxyPort) {
+	protected Server(int internalPort) {
 		if (LOGGER.isTraceEnabled()) {
-			LOGGER.trace("constructor - ENTER internalProxyPort=" + internalProxyPort);
+			LOGGER.trace("constructor - ENTER internalProxyPort=" + internalPort);
 		}
 
-		mInternalProxyPort = internalProxyPort;
-
+		mInternalProxyPort = internalPort;
 		mSocketServerThread = new SocketServerThread();
 
 		if (LOGGER.isTraceEnabled()) {
@@ -38,6 +43,7 @@ public class Server implements IServer {
 		}
 	}
 
+	@Override
 	public void start() {
 		if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace("start - ENTER");
@@ -50,6 +56,7 @@ public class Server implements IServer {
 		}
 	}
 
+	@Override
 	public void stop() {
 		if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace("start - ENTER");
@@ -76,8 +83,17 @@ public class Server implements IServer {
 
 	@Override
 	public boolean callback(IEntity entity) {
-		// TODO Auto-generated method stub
-		return false;
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("callback - ENTER entity=" + entity);
+		}
+		boolean retVal = false;
+
+		LOGGER.info("NOT IMPLEMENTED");
+
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("callback - LEAVE retVal=" + retVal);
+		}
+		return retVal;
 	}
 
 	@Override
@@ -105,19 +121,22 @@ public class Server implements IServer {
 		return retVal;
 	}
 
+	/**
+	 * Internal class that is always listening for new connections. When a new on
+	 * comes it is triggering {@link IConnectionManager} to create a new
+	 * {@link IClient}
+	 */
 	private class SocketServerThread implements Runnable {
 		@Override
 		public void run() {
 
 			while (mProviderSocket.isBound() && isStarted) {
-				// always listening for new connections. When a new on comes start a new message
-				// receiving thread
 				try {
 					mIncommmingConnection = mProviderSocket.accept();
 
 					LOGGER.info("Connection received from " + mIncommmingConnection.getInetAddress().getHostName());
 
-					// TODO: trigger incomming connection to the manager
+					ConnectionManagerImpl.getInstance().triggerIncommingConnection(mIncommmingConnection);
 
 				} catch (IOException ioException) {
 					LOGGER.error("IOException: " + ioException.getMessage(), ioException);
